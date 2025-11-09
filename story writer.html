@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>KPDBC Story Writer</title>
+    <link rel="icon" href="./image.png" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --accent: #ffe500;
+        --glass-light: rgba(255, 255, 255, 0.04);
+        --glass-dark: rgba(0, 0, 0, 0.28);
+        --input-light: rgba(255, 255, 255, 0.06);
+        --input-dark: rgba(255, 255, 255, 0.04);
+        --text-light: #ffffff;
+        --text-dark: #07102a;
+      }
+      html {
+        font-size: 16px;
+      }
+      @media (max-width: 720px) {
+        html {
+          font-size: 14px;
+        }
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto,
+          Helvetica, Arial;
+        color: var(--text-light);
+        -webkit-font-smoothing: antialiased;
+      }
+      .bg-image {
+        position: fixed;
+        inset: 0;
+        background-image: url("https://th.bing.com/th/id/R.7d54f9edb11a182580dd5edadc39e7b1?rik=FElUIJDt8QsceQ&riu=http%3a%2f%2fgetwallpapers.com%2fwallpaper%2ffull%2fc%2fc%2f0%2f898725-cool-beautiful-wallpaper-backgrounds-2560x1600-free-download.jpg&ehk=QWOsJK4Jm78fYt9eE5x1O5Hzc0v6912ksRDi0tV4%2fxU%3d&risl=&pid=ImgRaw&r=0");
+        background-size: cover;
+        background-position: center;
+        z-index: -4;
+        filter: brightness(0.6);
+      }
+      video.bg-video {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -3;
+        opacity: 0.9;
+      }
+      .bg-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        background: linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0.22),
+          rgba(0, 0, 0, 0.42)
+        );
+      }
+      .app-wrap {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 20px;
+        min-height: 100vh;
+      }
+      .card-glass {
+        width: 100%;
+        max-width: 930px;
+        background: transparent;
+        border-radius: 14px;
+        padding: 15px;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        box-shadow: 0 6px 30px rgba(0, 0, 0, 0.35);
+      }
+      .panel {
+        background: var(--glass-light);
+        border-radius: 12px;
+        padding: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      body.dark {
+        color: var(--text-light);
+      }
+      body.dark .panel {
+        background: var(--glass-dark);
+      }
+      h2 {
+        margin: 6px 0;
+        color: var(--accent);
+        font-weight: 700;
+        font-size: 1.25rem;
+      }
+      .muted-small {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.85);
+      }
+      input.form-control,
+      textarea.form-control,
+      select.form-select {
+        background: var(--input-light) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        color: var(--text-light) !important;
+        box-shadow: none !important;
+        font-size: 0.9rem;
+      }
+      body.dark input.form-control,
+      body.dark textarea.form-control,
+      body.dark select.form-select {
+        background: var(--input-dark) !important;
+      }
+      textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+      }
+      .mic-btn {
+        background: #ff0051;
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .mic-btn.recording {
+        animation: pulse 1s infinite;
+        background: red;
+      }
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.5);
+        }
+        70% {
+          box-shadow: 0 0 0 18px rgba(255, 0, 0, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+        }
+      }
+      .btns {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .story-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+      }
+      ::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+      }
+      #micFloat {
+        position: fixed;
+        z-index: 9999;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ff2856;
+        color: #fff;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        cursor: grab;
+        touch-action: none;
+      }
+      #micFloat.recording {
+        background: red;
+        animation: pulse 1s infinite;
+      }
+      #micFloat .label {
+        position: absolute;
+        bottom: 60px;
+        right: 0;
+        transform: translateX(10%);
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        padding: 5px 7px;
+        font-size: 11px;
+        border-radius: 6px;
+        display: none;
+      }
+      #micFloat.show-label .label {
+        display: block;
+      }
+      #micBtn {
+        position: relative;
+        z-index: 5;
+        touch-action: none;
+      }
+      #micBtn.dragging {
+        cursor: grabbing;
+      }
+      #bgToggle.active {
+        background: rgba(255, 255, 255, 0.12);
+      }
+      @media (max-width: 480px) {
+        .card-glass {
+          padding: 10px;
+        }
+        h2 {
+          font-size: 1rem;
+        }
+        textarea.form-control {
+          min-height: 70px;
+          font-size: 0.85rem;
+        }
+        input.form-control,
+        select.form-select {
+          font-size: 0.85rem;
+        }
+      }
+      /* Blog section */
+      .blog-section {
+        margin-top: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 10px;
+        border-radius: 8px;
+      }
+      .blog-item {
+        margin-bottom: 10px;
+        padding: 6px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.08);
+        font-size: 0.85rem;
+      }
+      .blog-title {
+        font-weight: 600;
+        color: #ffe500;
+      }
+      .blog-text {
+        font-size: 0.8rem;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-image" aria-hidden="true"></div>
+    <video class="bg-video" autoplay muted loop playsinline>
+      <source
+        src="https://cdn.coverr.co/videos/coverr-clouds-moving-above-a-mountain-3686/1080p.mp4"
+        type="video/mp4"
+      />
+    </video>
+    <div class="bg-overlay" aria-hidden="true"></div>
+
+    <button
+      id="micFloat"
+      title="Drag to move. Tap to speak"
+      aria-label="microphone"
+    >
+      <i class="bi bi-mic-fill" style="font-size: 20px"></i>
+      <div class="label">Mic (drag)</div>
+    </button>
+
+    <div class="app-wrap">
+      <div class="card-glass">
+        <div class="panel">
+          <div
+            class="d-flex align-items-start justify-content-between mb-2 container-top"
+          >
+            <div>
+              <h2>✍️ KPDBC Story Writer + Translator</h2>
+              <div class="muted-small">
+                Fully transparent form • mobile-optimized • dark/light theme
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-2 mb-2">
+            <div class="col-12 col-md-6">
+              <input
+                id="email"
+                class="form-control"
+                placeholder="Your Email"
+                type="email"
+                required
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <input id="name" class="form-control" placeholder="Your Name" />
+            </div>
+            <div class="col-12 col-md-6">
+              <input
+                id="title"
+                class="form-control"
+                placeholder="Story Title"
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <input
+                id="category"
+                class="form-control"
+                placeholder="Category"
+              />
+            </div>
+          </div>
+
+          <select id="language" class="form-select mb-3">
+            <option value="English">English</option>
+            <option value="Telugu">Telugu</option>
+            <option value="Hindi">Hindi</option>
+            <option value="Tamil">Tamil</option>
+            <option value="Kannada">Kannada</option>
+            <option value="Malayalam">Malayalam</option>
+            <option value="Russian">Russian</option>
+            <option value="Chinese">Chinese (Simplified)</option>
+            <option value="Japanese">Japanese</option>
+            <option value="Urdu">Urdu</option>
+            <option value="French">French</option>
+            <option value="Korean">Korean</option>
+          </select>
+
+          <div
+            class="d-flex gap-2 align-items-start mb-3 flex-column flex-md-row"
+          >
+            <textarea
+              id="text"
+              rows="6"
+              class="form-control flex-grow-1"
+              placeholder="Write or speak your story..."
+            ></textarea>
+            <button
+              class="mic-btn mt-2 mt-md-0"
+              id="micBtn"
+              title="Speak your story"
+            >
+              <i class="bi bi-mic-fill"></i>
+            </button>
+          </div>
+
+          <!-- Translate controls -->
+          <div class="input-group mb-3">
+            <select id="translateTo" class="form-select">
+              <option value="">-- Translate To --</option>
+              <option value="en">English</option>
+              <option value="te">Telugu</option>
+              <option value="hi">Hindi</option>
+              <option value="ta">Tamil</option>
+              <option value="kn">Kannada</option>
+              <option value="ml">Malayalam</option>
+              <option value="ru">Russian</option>
+              <option value="zh-CN">Chinese (Simplified)</option>
+              <option value="ja">Japanese</option>
+              <option value="ur">Urdu</option>
+              <option value="fr">French</option>
+              <option value="ko">Korean</option>
+            </select>
+            <button
+              class="btn btn-info text-white"
+              id="translateBtn"
+              title="Translate selected text"
+            >
+              <i class="bi bi-translate"></i>
+            </button>
+          </div>
+
+          <div class="btns mb-2">
+            <button
+              id="saveBtn"
+              class="btn btn-success"
+              onclick="createStory()"
+            >
+              <i class="bi bi-save-fill me-1"></i>Save
+            </button>
+            <button
+              id="loadBtn"
+              class="btn btn-primary"
+              onclick="loadStories()"
+            >
+              <i class="bi bi-book-half me-1"></i>My Stories
+            </button>
+            <button
+              id="updateBtn"
+              class="btn btn-warning d-none"
+              onclick="updateSelected()"
+            >
+              <i class="bi bi-arrow-repeat me-1"></i>Update
+            </button>
+            <button
+              id="cancelEditBtn"
+              class="btn btn-outline-light d-none"
+              onclick="cancelEdit()"
+            >
+              Cancel
+            </button>
+          </div>
+
+          <div id="msg" class="fw-bold text-warning mb-2 small"></div>
+          <div id="list" class="story-list"></div>
+
+          <!-- Blog Section -->
+          <!-- <div class="blog-section">
+            <div class="blog-item">
+              <div class="blog-title">Blog 1: Writing Tips</div>
+              <div class="blog-text">
+                Keep your stories short and clear for better engagement on
+                mobile.
+              </div>
+            </div>
+            <div class="blog-item">
+              <div class="blog-title">Blog 2: Language Tricks</div>
+              <div class="blog-text">
+                Use the language selector to dictate stories in your preferred
+                language.
+              </div>
+            </div>
+            <div class="blog-item">
+              <div class="blog-title">Blog 3: Save Often</div>
+              <div class="blog-text">
+                Click save to store your stories. You can also update them
+                later.
+              </div>
+            </div>
+          </div> -->
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const API_URL =
+        "https://script.google.com/macros/s/AKfycbxyTJn7cVcZm9nvLEMDl9u0EY_-I03zgBTVlDYTFsC4MW8TFYJZcQCVP1RKMUfhsE_G/exec";
+      let currentDocId = null;
+      let recognition;
+      let listening = false;
+      let finalTranscript = "";
+
+      function val(id) {
+        return document.getElementById(id).value;
+      }
+      function setVal(id, v) {
+        document.getElementById(id).value = v;
+      }
+      function showMsg(m) {
+        document.getElementById("msg").innerHTML = m;
+      }
+
+      async function post(data) {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+        return res.json();
+      }
+      async function createStory() {
+        const data = {
+          action: "createStory",
+          email: val("email").trim(),
+          title: val("title"),
+          text: val("text"),
+          category: val("category"),
+          language: val("language"),
+        };
+        const r = await post(data);
+        if (r.ok) {
+          showMsg("✅ Story saved");
+          loadStories();
+        } else showMsg("❌ " + r.error);
+      }
+      async function loadStories() {
+        const email = val("email").trim();
+        if (!email) return alert("Enter email first!");
+        showMsg("Loading...");
+        const r = await post({ action: "listStories", email });
+        if (r.ok) {
+          const stories = r.stories || [];
+          if (stories.length === 0) {
+            document.getElementById("list").innerHTML =
+              '<div class="text-muted small">No stories yet.</div>';
+            showMsg("📚 No stories found.");
+            return;
+          }
+          document.getElementById("list").innerHTML = stories
+            .map((s) => {
+              const safeTitle = (s.title || "Untitled").replace(/</g, "&lt;");
+              const summary = (s.text || "")
+                .slice(0, 120)
+                .replace(/</g, "&lt;");
+              return `<div class="story-item bg-light bg-opacity-10 mb-1 p-2 d-flex justify-content-between align-items-center"><div style="max-width:70%;text-align:left"><a href="#" onclick="openDoc('${encodeURIComponent(
+                s.docId
+              )}','${encodeURIComponent(s.title)}','${encodeURIComponent(
+                s.url
+              )}')" class="fw-semibold text-decoration-none text-reset">${safeTitle}</a><div class="small text-truncate">${summary}${
+                (s.text || "").length > 120 ? "..." : ""
+              }</div></div><div><button class="btn btn-sm btn-outline-light me-1" onclick="selectStory('${
+                s.docId
+              }','${s.title}','${
+                s.text || ""
+              }')"><i class="bi bi-pencil-square"></i></button><button class="btn btn-sm btn-outline-light" onclick="downloadStory('${
+                s.title || ""
+              }','${
+                s.url || ""
+              }')"><i class="bi bi-book-half me-1"></i></button></div></div>`;
+            })
+            .join("");
+          showMsg("📚 Stories loaded.");
+        } else showMsg("❌ " + r.error);
+      }
+      function selectStory(docId, title, text) {
+        currentDocId = docId;
+        setVal("title", title);
+        setVal("text", text);
+        document.getElementById("updateBtn").classList.remove("d-none");
+        document.getElementById("cancelEditBtn").classList.remove("d-none");
+      }
+      async function updateSelected() {
+        if (!currentDocId) return alert("Select a story first");
+        const r = await post({
+          action: "updateStory",
+          docId: currentDocId,
+          title: val("title"),
+          text: val("text"),
+          category: val("category"),
+        });
+        if (r.ok) {
+          showMsg("✅ Updated");
+          cancelEdit();
+          loadStories();
+        } else showMsg("❌ " + r.error);
+      }
+      function cancelEdit() {
+        currentDocId = null;
+        setVal("title", "");
+        setVal("text", "");
+        document.getElementById("updateBtn").classList.add("d-none");
+        document.getElementById("cancelEditBtn").classList.add("d-none");
+      }
+      function openDoc(docId, title, url) {
+        window.open(url, "_blank");
+      }
+      function downloadStory(title, url) {
+        window.open(url, "_blank");
+      }
+
+      function langCodeShortFromDisplay(lang) {
+        const map = {
+          English: "en",
+          Telugu: "te",
+          Hindi: "hi",
+          Tamil: "ta",
+          Kannada: "kn",
+          Malayalam: "ml",
+          Russian: "ru",
+          "Chinese (Simplified)": "zh-CN",
+          Japanese: "ja",
+          Urdu: "ur",
+          French: "fr",
+          Korean: "ko",
+        };
+        return map[lang] || "en";
+      }
+      document
+        .getElementById("translateBtn")
+        .addEventListener("click", async () => {
+          const text = val("text");
+          const sourceDisplay = val("language");
+          const target = val("translateTo");
+          if (!text || !target) return;
+          const srcShort = langCodeShortFromDisplay(sourceDisplay);
+          try {
+            showMsg("Translating...");
+            const r = await fetch(
+              `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
+                text
+              )}&langpair=${srcShort}|${encodeURIComponent(target)}`
+            );
+            const j = await r.json();
+            if (j.responseData && j.responseData.translatedText) {
+              setVal("text", j.responseData.translatedText);
+              showMsg("✅ Translated");
+            } else showMsg("❌ Translation failed");
+          } catch (e) {
+            console.error(e);
+            showMsg("❌ Translation failed");
+          }
+        });
+
+      function langCodeDisplayToSpeech(lang) {
+        switch ((lang || "").toLowerCase()) {
+          case "telugu":
+            return "te-IN";
+          case "hindi":
+            return "hi-IN";
+          case "tamil":
+            return "ta-IN";
+          case "kannada":
+            return "kn-IN";
+          case "malayalam":
+            return "ml-IN";
+          case "russian":
+            return "ru-RU";
+          case "chinese (simplified)":
+            return "zh-CN";
+          case "japanese":
+            return "ja-JP";
+          case "urdu":
+            return "ur-PK";
+          case "french":
+            return "fr-FR";
+          case "korean":
+            return "ko-KR";
+          default:
+            return "en-US";
+        }
+      }
+
+      // Floating mic drag + click only toggle
+      (function () {
+        const btn = document.getElementById("micFloat");
+        let dragging = false,
+          offset = { x: 0, y: 0 };
+        btn.style.right = "20px";
+        btn.style.top = "80px";
+        btn.addEventListener("mousedown", startDrag);
+        btn.addEventListener("touchstart", startDrag);
+        function startDrag(e) {
+          dragging = true;
+          const ev = e.touches ? e.touches[0] : e;
+          offset.x = ev.clientX - btn.offsetLeft;
+          offset.y = ev.clientY - btn.offsetTop;
+          document.addEventListener("mousemove", onDrag);
+          document.addEventListener("mouseup", endDrag);
+          document.addEventListener("touchmove", onDrag);
+          document.addEventListener("touchend", endDrag);
+        }
+        function onDrag(e) {
+          if (!dragging) return;
+          const ev = e.touches ? e.touches[0] : e;
+          btn.style.left = ev.clientX - offset.x + "px";
+          btn.style.top = ev.clientY - offset.y + "px";
+        }
+        function endDrag() {
+          dragging = false;
+          document.removeEventListener("mousemove", onDrag);
+          document.removeEventListener("mouseup", endDrag);
+          document.removeEventListener("touchmove", onDrag);
+          document.removeEventListener("touchend", endDrag);
+        }
+        btn.addEventListener("click", toggleMic);
+      })();
+
+      function toggleMic() {
+        if (listening) {
+          stopMic();
+          return;
+        }
+        const SpeechRec =
+          window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) {
+          alert("Speech recognition not supported");
+          return;
+        }
+        recognition = new SpeechRec();
+        recognition.lang = langCodeDisplayToSpeech(val("language"));
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.onresult = (e) => {
+          let interim = "";
+          for (let i = e.resultIndex; i < e.results.length; i++) {
+            const t = e.results[i][0].transcript;
+            if (e.results[i].isFinal) {
+              finalTranscript =
+                (finalTranscript ? finalTranscript + " " : "") + t;
+            } else interim += t;
+          }
+          document.getElementById("text").value = (
+            finalTranscript + (interim ? " " + interim : "")
+          ).trim();
+        };
+        recognition.onend = () => {
+          listening = false;
+          document.getElementById("micFloat").classList.remove("recording");
+          document.getElementById("micBtn").classList.remove("recording");
+        };
+        recognition.onerror = (e) => {
+          console.error(e);
+          stopMic();
+        };
+        recognition.start();
+        listening = true;
+        document.getElementById("micFloat").classList.add("recording");
+        document.getElementById("micBtn").classList.add("recording");
+      }
+      function stopMic() {
+        if (recognition)
+          try {
+            recognition.stop();
+          } catch (e) {}
+        listening = false;
+        document.getElementById("micFloat").classList.remove("recording");
+        document.getElementById("micBtn").classList.remove("recording");
+      }
+    </script>
+  </body>
+</html>
